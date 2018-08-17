@@ -1,19 +1,42 @@
 <?php
-download_m3u8('1.m3u','2');
 
-function download_m3u8($file,$dir = '')
+$longopt = array(
+    'url:',
+);
+$params = getopt('', $longopt);
+if (empty($params)) {
+	echo "\n\nThis is a simple download m3u8 tool #_#\n
+usage php download_m3u8.php --url \"{url}\"\n";
+	exit();
+}
+if (empty($params['url'])) {
+	echo "param url is needed\n";
+}
+$url = $params['url'];
+
+download_m3u8($url);
+
+function download_m3u8($url,$dir = '')
 {
-	$content = file_get_contents($file);
-	if (preg_match_all('/(http|https):\/\/.*/', $content, $matches)) {
-		print_r($matches);
+	$content = file_get_contents($url);
+	echo $content;
+	if (preg_match_all('/(http|https):\/\/.*/', $content, $matches) or preg_match_all('/.+\.ts/', $content, $matches)) {
 		if (!$dir) {
-			$dir = uniqid();
+			$dir = "video/".uniqid();
 		}
 		makedir($dir);
 		echo "dir {$dir}\n\n";
 		echo "download ts\n";
 		$count = count($matches[0]);
 		foreach ($matches[0] as $key => $value) {
+			if (!strpos($value, 'http')) {
+				$parse_url_result = parse_url($url);
+				$url_path = $parse_url_result['path'];
+				$arr = explode('/', $url_path);
+				array_splice($arr,-1);
+				$url_path_pre = $parse_url_result['scheme']."://".$parse_url_result['host'].implode('/', $arr)."/";
+				$value = $url_path_pre.$value;
+			}
 			$ts_output = "{$dir}/{$key}.ts";
 			$cmd = "curl -o {$ts_output} '{$value}'";
 			exec($cmd);
@@ -62,6 +85,10 @@ function download_m3u8($file,$dir = '')
 		}
 
 		if (is_file($last)) {
+			$cmd = "rm -rf {$dir}/*ts";
+			exec($cmd);
+			echo "\n$cmd\n";
+
 			echo "\n\nsuccess {$last}\n";
 		}else{
 			echo "\n\nfailed\n";
