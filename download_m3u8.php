@@ -1,10 +1,10 @@
 <?php
-download_m3u8('1.m3u8','1');
+download_m3u8('1.m3u','2');
 
 function download_m3u8($file,$dir = '')
 {
 	$content = file_get_contents($file);
-	if (preg_match_all('/http:\/\/.*/', $content, $matches)) {
+	if (preg_match_all('/(http|https):\/\/.*/', $content, $matches)) {
 		print_r($matches);
 		if (!$dir) {
 			$dir = uniqid();
@@ -15,7 +15,7 @@ function download_m3u8($file,$dir = '')
 		$count = count($matches[0]);
 		foreach ($matches[0] as $key => $value) {
 			$ts_output = "{$dir}/{$key}.ts";
-			$cmd = "curl -o {$ts_output} {$value}";
+			$cmd = "curl -o {$ts_output} '{$value}'";
 			exec($cmd);
 			echo "\n$cmd\n";
 			if (is_file($ts_output)) {
