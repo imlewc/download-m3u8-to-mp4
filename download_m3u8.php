@@ -22,7 +22,7 @@ function download_m3u8($url,$dir = '')
 	echo $content;
 	if (preg_match_all('/(http|https):\/\/.*/', $content, $matches) or preg_match_all('/.+\.ts/', $content, $matches)) {
 		if (!$dir) {
-			$dir = "video/".uniqid();
+			$dir = "video/".md5($url);
 		}
 		makedir($dir);
 		echo "dir {$dir}\n\n";
@@ -38,7 +38,7 @@ function download_m3u8($url,$dir = '')
 				$value = $url_path_pre.$value;
 			}
 			$ts_output = "{$dir}/{$key}.ts";
-			$cmd = "curl -o {$ts_output} '{$value}'";
+			$cmd = "curl -L -o {$ts_output} '{$value}'";
 			exec($cmd);
 			echo "\n$cmd\n";
 			if (is_file($ts_output)) {
