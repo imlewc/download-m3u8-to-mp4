@@ -19,7 +19,7 @@ download_m3u8($url);
 function download_m3u8($url, $dir = '')
 {
     $content = file_get_contents($url);
-    echo $content;
+    // echo $content;
     if (preg_match_all('/(http|https):\/\/.*/', $content, $matches) or preg_match_all('/.+\.ts/', $content, $matches)) {
         if (!$dir) {
             $dir = "video/" . md5($url);
@@ -29,7 +29,7 @@ function download_m3u8($url, $dir = '')
         echo "download ts\n";
         $count = count($matches[0]);
         foreach ($matches[0] as $key => $value) {
-            if (!strpos($value, 'http')) {
+            if (strpos($value, 'http') === false) {
                 $parse_url_result = parse_url($url);
                 $url_path = $parse_url_result['path'];
                 $arr = explode('/', $url_path);
